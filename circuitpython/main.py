@@ -1,3 +1,4 @@
+# @author flymyd@foxmail.com
 import time
 import supervisor
 import usb_hid
@@ -10,7 +11,7 @@ mouse = Mouse(usb_hid.devices)
 # Screen resolution, default is 2K 16:9
 base_resolution = [2560, 1440]
 
-# 32767 = 100%
+# Mapping absolute coord to relative coord. CONST 32767 = 100%
 def transpose(x, y):
     return ((x * 32767) // base_resolution[0], (y * 32767) // base_resolution[1])
 
@@ -24,7 +25,7 @@ while True:
         if value == "IDENTIFY":
             print("DETECTED")
         # Set screen resolution
-        if value.startswith("SETSCR:"):
+        elif value.startswith("SETSCR:"):
             values = value[7:].split(',')
             if len(values) == 2:
                 try:
@@ -32,7 +33,7 @@ while True:
                 except ValueError:
                     print("Invalid width or height")
             else:
-                print("Invalid SETSCR format, like SETSCR:2560,1440")
+                print("Invalid SETSCR value, like SETSCR:2560,1440")
         # Mouse Move handler
         elif value.startswith("MM:"):
             values = value[3:].split(',')
@@ -42,7 +43,17 @@ while True:
                 except ValueError:
                     print("Invalid xCoord or yCoord")
             else:
-                print("Invalid MouseMove format, like MM:1280,720")
+                print("Invalid MouseMove value, like MM:1280,720")
+        # Mouse Click handler
+        elif value.startswith("MC:"):
+            keycode = value[3:]
+            if keycode == "L":
+                mouse.click(Mouse.LEFT_BUTTON)
+            elif keycode == "R":
+                mouse.click(Mouse.RIGHT_BUTTON)
+            elif keycode == "M":
+                mouse.click(Mouse.MIDDLE_BUTTON)
+            else:
+                print("Invalid MouseClick value, like MC:L or R or M")
         else:
-            # mouse.click(Mouse.LEFT_BUTTON)
             print("UNHANDLED CMD")
