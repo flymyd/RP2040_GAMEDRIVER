@@ -29,8 +29,8 @@ def send_package(port, payload):
 def search_pico():
     ports = serial.tools.list_ports.comports()
     for port in ports:
-        response = send_package(port.device, "identify_pico")
-        if response == "pico_detected":
+        response = send_package(port.device, "IDENTIFY")
+        if response == "DETECTED":
             return port.device
         else:
             pass
@@ -50,7 +50,9 @@ pico_port = search_pico()
 
 if pico_port:
     print("Pico已识别，位于串口设备：", pico_port)
-    res = send_package(pico_port, "ACCEED")
+    res = send_package(pico_port, "1,1")
+    print(res)
+    res = send_package(pico_port, "1920,1080")
     print(res)
     # while True:
     #     if ser.in_waiting > 0:
