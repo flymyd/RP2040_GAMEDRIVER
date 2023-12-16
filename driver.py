@@ -37,6 +37,17 @@ def search_pico():
     return None
 
 pico_port = search_pico()
+
+# Listen serial example
+# ser = serial.Serial(
+#              '/dev/ttyACM0',
+#              baudrate=115200,
+#              timeout=0.01)
+
+# ser.write(b'HELLO from CircuitPython\n')
+# x = ser.readlines()
+# print("received: {}".format(x))
+
 if pico_port:
     print("Pico已识别，位于串口设备：", pico_port)
     res = send_package(pico_port, "ACCEED")
