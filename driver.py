@@ -5,9 +5,9 @@ import serial.tools.list_ports
 
 baudrate = 115200
 
-def send_package(port, payload):
+def send_package(ser, payload):
     try:
-        ser = serial.Serial(port, baudrate=baudrate)
+        # ser = serial.Serial(port, baudrate=baudrate)
         command = f'{payload}\n\r'.encode()
         ser.write(command)
         reply = b''
@@ -21,18 +21,25 @@ def send_package(port, payload):
                 reply += a
             time.sleep(0.01)
         response = reply.decode("ascii")
-        ser.close()
+        # ser.close()
         return response
     except serial.SerialException:
-        return ""
+        return serial.SerialException
 
 def search_pico():
     ports = serial.tools.list_ports.comports()
     for port in ports:
-        response = send_package(port.device, "IDENTIFY")
-        if response == "DETECTED":
-            return port.device
-        else:
+        try:
+            ser = serial.Serial(port.device, baudrate=baudrate)
+            response = send_package(ser, "IDENTIFY")
+            ser.close()
+            if response == "DETECTED":
+                print(port.device)
+                return port.device
+            else:
+                pass
+        except serial.SerialException:
+            print(serial.SerialException)
             pass
     return None
 
@@ -50,10 +57,22 @@ pico_port = search_pico()
 
 if pico_port:
     print("Pico已识别，位于串口设备：", pico_port)
-    res = send_package(pico_port, "1,1")
-    print(res)
-    res = send_package(pico_port, "1920,1080")
-    print(res)
+    try:
+        ser = serial.Serial(pico_port, baudrate=baudrate)
+        commands = ["MM:1,1", "MC:L", "MM:640,860", "MC:L", "MM:1920,470","MC:L"]
+        for command in commands:
+            res = send_package(ser, command)
+            print(res.strip())
+            time.sleep(1)
+        time.sleep(5)
+        commands = ["MM:1,1", "MM:650,420", "MC:L", "KP:W", "KR:W", "KC:F"]
+        for command in commands:
+            res = send_package(ser, command)
+            print(res.strip())
+            time.sleep(1)
+        ser.close()
+    except serial.SerialException:
+        print(serial.SerialException)
     # while True:
     #     if ser.in_waiting > 0:
     #         data = ser.readline().decode().strip()
