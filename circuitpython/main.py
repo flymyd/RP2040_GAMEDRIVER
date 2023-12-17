@@ -1,13 +1,15 @@
 # @author flymyd@foxmail.com
-import time
 import supervisor
 import usb_hid
-from absolute_mouse import Mouse
 import board
 import busio
-import re
+import time
+from absolute_mouse import Mouse
+from adafruit_hid.keyboard import Keyboard
+from adafruit_hid.keycode import Keycode
 
 mouse = Mouse(usb_hid.devices)
+keyboard = Keyboard(usb_hid.devices)
 # Screen resolution, default is 2K 16:9
 base_resolution = [2560, 1440]
 
@@ -37,6 +39,7 @@ while True:
                 if len(args) == 2:
                     try:
                         base_resolution = list(map(int, args))
+                        print(f"SETSCR:{base_resolution}")
                     except ValueError:
                         print("Invalid width or height")
                 else:
@@ -47,6 +50,7 @@ while True:
                 if len(args) == 2:
                     try:
                         mouse.move(*transpose(int(args[0]), int(args[1])))
+                        print(f"MM:{args}")
                     except ValueError:
                         print("Invalid xCoord or yCoord")
                 else:
@@ -55,7 +59,42 @@ while True:
             elif cmd == "MC":
                 if args in ("L", "R", "M"):
                     mouse.click(button_map[args])
+                    print(f"MC:{args}")
                 else:
                     print("Invalid MouseClick value, like MC:L or R or M")
+            # TODO MouseDrag handler
+            # KeyboardClick handler
+            elif cmd == "KC":
+                args = args.split(",")
+                for key_name in args:
+                    try:
+                        keycode = getattr(Keycode, key_name)
+                        keyboard.press(keycode)
+                        time.sleep(0.05)
+                        keyboard.release(keycode)
+                    except AttributeError as e:
+                        print(f"Error: {e}. '{key_name}' may not be a valid keycode.")
+                keyboard.release_all()
+                print(f"KC:{args}")
+            # KeyboardPress handler
+            elif cmd == "KP":
+                args = args.split(",")
+                for key_name in args:
+                    try:
+                        keycode = getattr(Keycode, key_name)
+                        keyboard.press(keycode)
+                    except AttributeError as e:
+                        print(f"Error: {e}. '{key_name}' may not be a valid keycode.")
+                print(f"KP:{args}")
+            # KeyboardRelease handler
+            elif cmd == "KR":
+                args = args.split(",")
+                for key_name in args:
+                    try:
+                        keycode = getattr(Keycode, key_name)
+                        keyboard.release(keycode)
+                    except AttributeError as e:
+                        print(f"Error: {e}. '{key_name}' may not be a valid keycode.")
+                print(f"KR:{args}")
             else:
                 print("UNHANDLED CMD")
