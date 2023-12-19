@@ -7,7 +7,6 @@ baudrate = 115200
 
 def send_package(ser, payload):
     try:
-        # ser = serial.Serial(port, baudrate=baudrate)
         command = f'{payload}\n\r'.encode()
         ser.write(command)
         reply = b''
@@ -21,7 +20,6 @@ def send_package(ser, payload):
                 reply += a
             time.sleep(0.01)
         response = reply.decode("ascii")
-        # ser.close()
         return response
     except serial.SerialException:
         return serial.SerialException
@@ -43,33 +41,33 @@ def search_pico():
             pass
     return None
 
-pico_port = search_pico()
-
-# Listen serial example
-# ser = serial.Serial(
-#              '/dev/ttyACM0',
-#              baudrate=115200,
-#              timeout=0.01)
-
-# ser.write(b'HELLO from CircuitPython\n')
-# x = ser.readlines()
-# print("received: {}".format(x))
+# pico_port = search_pico()
+pico_port = '/dev/cu.usbmodem411101'
 
 if pico_port:
     print("Pico已识别，位于串口设备：", pico_port)
     try:
         ser = serial.Serial(pico_port, baudrate=baudrate)
-        commands = ["MM:1,1", "MC:L", "MM:640,860", "MC:L", "MM:1920,470","MC:L"]
-        for command in commands:
-            res = send_package(ser, command)
-            print(res.strip())
-            time.sleep(1)
-        time.sleep(5)
-        commands = ["MM:1,1", "MM:650,420", "MC:L", "KP:W", "KR:W", "KC:F"]
-        for command in commands:
-            res = send_package(ser, command)
-            print(res.strip())
-            time.sleep(1)
+        send_package(ser, "MM:1,1")
+        time.sleep(1)
+        print(send_package(ser, "MM:450,716"))
+        time.sleep(1)
+        # send_package(ser, "MP:L")
+        # time.sleep(1)
+        # send_package(ser, "MM:690,860")
+        # time.sleep(1)
+        # send_package(ser, "MR:L")
+        # commands = ["MM:1,1", "MC:L", "MM:640,860", "MC:L", "MM:1920,470","MC:L"]
+        # for command in commands:
+        #     res = send_package(ser, command)
+        #     print(res.strip())
+        #     time.sleep(1)
+        # time.sleep(5)
+        # commands = ["MM:1,1", "MM:650,420", "MC:L", "KP:W", "KR:W", "KC:F"]
+        # for command in commands:
+        #     res = send_package(ser, command)
+        #     print(res.strip())
+        #     time.sleep(1)
         ser.close()
     except serial.SerialException:
         print(serial.SerialException)

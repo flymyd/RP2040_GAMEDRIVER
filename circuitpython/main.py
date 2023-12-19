@@ -62,7 +62,24 @@ while True:
                     print(f"MC:{args}")
                 else:
                     print("Invalid MouseClick value, like MC:L or R or M")
-            # TODO MouseDrag handler
+            # MousePress handler
+            elif cmd == "MP":
+                if args in ("L", "R", "M"):
+                    mouse.press(button_map[args])
+                    print(f"MP:{args}")
+                else:
+                    print("Invalid MousePress value, like MP:L or R or M")
+            # MouseRelease handler
+            elif cmd == "MR":
+                if args in ("L", "R", "M"):
+                    mouse.release(button_map[args])
+                    print(f"MR:{args}")
+                else:
+                    print("Invalid MouseRelease value, like MR:L or R or M")
+            # MouseReleaseAll handler
+            elif cmd == "MRA":
+                mouse.release_all()
+                print("MRA")
             # KeyboardClick handler
             elif cmd == "KC":
                 args = args.split(",")
@@ -70,7 +87,7 @@ while True:
                     try:
                         keycode = getattr(Keycode, key_name)
                         keyboard.press(keycode)
-                        time.sleep(0.05)
+                        time.sleep(0.01)
                         keyboard.release(keycode)
                     except AttributeError as e:
                         print(f"Error: {e}. '{key_name}' may not be a valid keycode.")
@@ -96,5 +113,9 @@ while True:
                     except AttributeError as e:
                         print(f"Error: {e}. '{key_name}' may not be a valid keycode.")
                 print(f"KR:{args}")
+            # KeyboardReleaseAll handler
+            elif cmd == "KRA":
+                keyboard.release_all()
+                print("KRA")
             else:
                 print("UNHANDLED CMD")
